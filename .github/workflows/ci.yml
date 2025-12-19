@@ -5,7 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:  # 手動実行も可能
+  workflow_dispatch:  # 手動実行可能
 
 jobs:
   build:
@@ -26,24 +26,24 @@ jobs:
       - name: Make Gradle Wrapper executable
         run: chmod +x gradlew
 
-      # 4. Gradle キャッシュを有効化（依存関係のダウンロードを高速化）
+      # 4. Gradle キャッシュを有効化
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: gradle-
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
 
       # 5. Gradle ビルド & テスト実行
       - name: Build with Gradle
         run: ./gradlew build --no-daemon
 
-      # 6. 成功した場合はビルド成果物を確認用に保存（オプション）
+      # 6. 成功した場合、成果物をアップロード（オプション）
       - name: Upload build artifacts
         if: success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: build/libs/
